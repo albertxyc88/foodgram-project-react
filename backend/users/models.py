@@ -11,11 +11,12 @@ class User(AbstractUser):
         (ADMIN, ADMIN),
     ]
 
-    email = models.EmailField(max_length=80, unique=True, blank=False)
-    first_name = models.CharField(max_length=64, unique=False, blank=False)
-    last_name = models.CharField(max_length=64, unique=False, blank=False)
+    email = models.EmailField(max_length=254, unique=True, blank=False)
+    username = models.CharField(max_length=150, unique=True, blank=False,)
+    first_name = models.CharField(max_length=150, unique=False, blank=False)
+    last_name = models.CharField(max_length=150, unique=False, blank=False)
+    password = models.CharField(max_length=150, blank=False)
     role = models.CharField(max_length=20, choices=ROLES, default=USER)
-    confirmation_code = models.CharField(max_length=255, blank=True, null=True)
 
     @property
     def is_admin(self):
