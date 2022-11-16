@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .permissions import AllowAnyGetPost, CurrentUserOrAdmin
-from .serializers import UserSerializer
+from .serializers import ChangePasswordSerializer, UserSerializer
 
 User = get_user_model()
 
@@ -26,25 +26,31 @@ class UserViewSet(viewsets.ModelViewSet):
         user.save()
 
     @action(
-        detail=False,
         methods=['get'],
-        permission_classes=[IsAuthenticated]
+        detail=True,
+        url_path='me',
+        permission_classes=(IsAuthenticated,),
+        serializer_class=UserSerializer
     )
-    def me(self, request):
-        serializer = self.get_serializer(self.request.user)
+    def self_user(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False,
-            methods=['post'],
-            permission_classes=[CurrentUserOrAdmin])
-    def set_password(self, request, *args, **kwargs):
-        serializer = SetPasswordSerializer(
-            data=request.data,
-            context={'request': request}
-        )
+    @action(
+        detail=False,
+        methods=['post'],
+        permission_classes=[CurrentUserOrAdmin]
+    )
+    def set_password(self, request):
+        user = self.get_object()
+        serializer = ChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
-            new_password = serializer.validated_data['new_password']
-            self.request.user.set_password(new_password)
-            self.request.user.save()
-            return Response(data={}, status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            return Response({'status': 'password set'})
+        else:
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)

@@ -32,3 +32,8 @@ class UserSerializer(serializers.ModelSerializer):
     #         return False
     #     user = request.user
     #     return Follow.objects.filter(following=obj, user=user).exists()
+
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
+    current_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
