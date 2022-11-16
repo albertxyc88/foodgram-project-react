@@ -1,13 +1,22 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
-
-User = get_user_model()
+from users.models import Follow, User
 
 
 class UserSerializer(serializers.ModelSerializer):
     """User serializer."""
 
-    # is_subscribed = serializers.SerializerMethodField()
+    email = serializers.EmailField()
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
+
+    def get_is_subscribed(self, username):
+        user = self.context['request'].user
+        return Follow.objects.filter(
+            user=user,
+            following=username
+        ).exists()
 
     class Meta:
         model = User
@@ -17,23 +26,5 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            'password',
-            # 'is_subscribed'
+            'is_subscribed'
         )
-        extra_kwargs = {
-            "password": {
-                'write_only': True
-            }
-        }
-
-    # def get_is_subscribed(self, obj):
-    #     request = self.context.get('request')
-    #     if request is None or request.user.is_anonymous:
-    #         return False
-    #     user = request.user
-    #     return Follow.objects.filter(following=obj, user=user).exists()
-
-class ChangePasswordSerializer(serializers.Serializer):
-    model = User
-    current_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)

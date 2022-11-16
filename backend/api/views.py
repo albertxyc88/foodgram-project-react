@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .permissions import AllowAnyGetPost, CurrentUserOrAdmin
-from .serializers import ChangePasswordSerializer, UserSerializer
+from .serializers import UserSerializer
 
 User = get_user_model()
 
