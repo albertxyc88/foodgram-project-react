@@ -1,12 +1,23 @@
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
+# class AdminOrReadOnly(BasePermission):
+#     def has_permission(self, request, view):
+#         return (
+#             request.method in SAFE_METHODS
+#             or request.user.is_admin
+#         )
 
-class AllowAnyGetPost(BasePermission):
+
+class CurrentUserOrAdminOrReadOnly(BasePermission):
     def has_permission(self, request, view):
-        return (request.method in SAFE_METHODS) or (request.method == 'POST')
+        return (
+            request.method in SAFE_METHODS
+            or request.user.is_authenticated
+        )
 
-
-class CurrentUserOrAdmin(BasePermission):
     def has_object_permission(self, request, view, obj):
-        user = request.user
-        return user.is_superuser or obj.pk == user.pk
+        return (
+            request.method in SAFE_METHODS
+            or obj.author == request.user
+            or request.user.is_admin
+        )
