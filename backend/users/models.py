@@ -10,11 +10,9 @@ class User(AbstractUser):
         (ADMIN, ADMIN),
     ]
 
-    email = models.EmailField(max_length=254, unique=True, blank=False)
-    username = models.CharField(max_length=150, unique=True, blank=False)
-    first_name = models.CharField(max_length=150, unique=False, blank=False)
-    last_name = models.CharField(max_length=150, unique=False, blank=False)
-    password = models.CharField(max_length=150, blank=False)
+    email = models.EmailField(max_length=254, unique=True)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
     role = models.CharField(max_length=20, choices=ROLES, default=USER)
 
     USERNAME_FIELD = 'email'
@@ -32,9 +30,6 @@ class User(AbstractUser):
         ordering = ['username']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-
-    def __str__(self):
-        return self.email
 
 
 class Follow(models.Model):
