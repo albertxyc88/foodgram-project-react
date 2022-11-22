@@ -162,7 +162,6 @@ CORS_URLS_REGEX = r'^/api/.*$'
 CORS_URLS_REGEX = r'^/admin/.*$'
 
 DJOSER = {
-    'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
     'SERIALIZERS': {
         'user': 'users.serializers.UserSerializer',

@@ -1,3 +1,4 @@
+from djoser.serializers import UserCreateSerializer
 from rest_framework import serializers
 from users.models import Follow, User
 
@@ -30,18 +31,8 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class UserCreateSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(UserCreateSerializer):
     """User create serializer."""
-
-    email = serializers.EmailField(required=True)
-    username = serializers.CharField(max_length=150, required=True)
-    first_name = serializers.CharField(max_length=150, required=True)
-    last_name = serializers.CharField(max_length=150, required=True)
-    password = serializers.CharField(
-        required=True,
-        write_only=True,
-        style={'input_type': 'password', 'placeholder': 'Password'}
-    )
 
     class Meta:
         model = User
