@@ -11,8 +11,8 @@ class User(AbstractUser):
     ]
 
     email = models.EmailField(max_length=254, unique=True)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
+    first_name = models.CharField(max_length=150, verbose_name='Имя')
+    last_name = models.CharField(max_length=150, verbose_name='Фамилия')
     role = models.CharField(max_length=20, choices=ROLES, default=USER)
 
     USERNAME_FIELD = 'email'
@@ -41,9 +41,19 @@ class Follow(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'following'],
                 name='unique_user_following'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F('following')),
+                name='disable_self_following'
             )
         ]
+
+    def __str__(self):
+        return f'Пользователь {self.user} подписан на {self.following}'
