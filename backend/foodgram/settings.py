@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'users.apps.UsersConfig',
+    'recipe.apps.RecipeConfig',
     'rest_framework',
     'corsheaders',
     'django.contrib.admin',
@@ -47,8 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
     'djoser',
-    
-    
+
+
 ]
 
 MIDDLEWARE = [

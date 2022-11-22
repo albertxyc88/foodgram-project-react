@@ -9,6 +9,3 @@ User = get_user_model()
 
 class UserCustomViewSet(UserViewSet):
     """Кастомизированный вьюсет библиотеки 'djoser'."""
-
-
-    
