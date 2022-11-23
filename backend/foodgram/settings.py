@@ -174,3 +174,6 @@ DJOSER = {
         'user_list': ['rest_framework.permissions.AllowAny'],
     }
 }
+
+# Для валидатора минимальное число приготовления, количества
+MIN_VALUE = 1

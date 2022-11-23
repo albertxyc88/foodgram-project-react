@@ -1,4 +1,4 @@
-from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserCreateSerializer as DjoserUserCreate
 from rest_framework import serializers
 from users.models import Follow, User
 
@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
-class UserCreateSerializer(UserCreateSerializer):
+class UserCreateSerializer(DjoserUserCreate):
     """User create serializer."""
 
     class Meta:
