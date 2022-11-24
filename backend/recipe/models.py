@@ -74,7 +74,7 @@ class Recipes(models.Model):
         verbose_name='Название'
     )
     image = models.ImageField(
-        upload_to='/recipes/images/',
+        upload_to='recipes/images/',
         verbose_name='Картинка'
     )
     text = models.TextField(
@@ -97,7 +97,9 @@ class TagsRecipes(models.Model):
         verbose_name='Тег'
     )
     recipe = models.ForeignKey(
-        Recipes
+        Recipes,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт'
     )
 
     class Meta:
@@ -135,3 +137,65 @@ class IngredientsRecipes(models.Model):
 
     def __str__(self):
         return f'{self.ingredient} {self.recipe}'
+
+
+class ShoppingCart(models.Model):
+    """Модель для списка покупок."""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='cart',
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='cart',
+        verbose_name='Рецепт'
+    )
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_cart'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} {self.recipe}'
+
+
+class Favorite(models.Model):
+    """Модель для избранных рецептов."""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorite',
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='favorite',
+        verbose_name='Рецепт'
+    )
+
+    class Meta:
+        verbose_name = 'Список избранных рецептов'
+        verbose_name_plural = 'Списки избранных рецептов'
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} {self.recipe}'
