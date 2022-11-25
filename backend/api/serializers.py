@@ -34,10 +34,10 @@ class IngredientsRecipesSaveSerializator(serializers.Serializer):
 class IngredientsRecipesSerializer(serializers.ModelSerializer):
     """Для показа ингредиентов в рецепте."""
 
-    id = serializers.IntegerField(source='ingredients.id')
-    name = serializers.CharField(source='ingredients.name')
+    id = serializers.IntegerField(source='ingredient.id')
+    name = serializers.CharField(source='ingredient.name')
     measurement_unit = serializers.CharField(
-        source='ingredients.measurement_unit'
+        source='ingredient.measurement_unit'
     )
 
     class Meta:
@@ -62,7 +62,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipes
         fields = '__all__'
-        read_only_fields = ('author', 'ingredients')
+        read_only_fields = ('user', 'ingredients',)
+
+    def to_representation(self, value):
+        return RecipesSerializer(value, context=self.context).data
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
@@ -129,14 +132,14 @@ class RecipesSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         return (
             user.is_authenticated
-            and recipe.favorite.filter(author=user).exists()
+            and recipe.favorite.filter(user=user).exists()
         )
 
     def get_is_in_shopping_cart(self, recipe):
         user = self.context['request'].user
         return (
             user.is_authenticated
-            and recipe.cart.filter(author=user).exists()
+            and recipe.cart.filter(user=user).exists()
         )
 
     class Meta:
@@ -178,7 +181,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         model = ShoppingCart
         fields = '__all__'
 
-        validatores = [
+        validators = [
             UniqueTogetherValidator(
                 queryset=ShoppingCart.objects.all(),
                 fields=('user', 'recipe'),
@@ -187,7 +190,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         ]
 
 
-class FavoriteOrShoppingCartSerializer(serializers.ModelSerializer):
+class FavoriteOrCartSerializer(serializers.ModelSerializer):
     """Отображение рецептов в избранном, списке покупок."""
 
     class Meta:

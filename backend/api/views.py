@@ -1,8 +1,7 @@
 from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from recipe.models import (Favorite, Ingredients, IngredientsRecipes, Recipes,
-                           ShoppingCart, Tags)
+from recipe.models import Favorite, Ingredients, Recipes, ShoppingCart, Tags
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -10,12 +9,12 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import RecipesFilter
-from .paginators import RecipePaginator
+from .paginators import CustomPaginator
 from .permissions import IsAuthorOrAdminOnlyPermission
-from .serializers import (FavoriteOrShoppingCartSerializer,
-                          FavoriteRecipeSerializer, IngredientsSerializer,
-                          RecipeCreateSerializer, RecipesSerializer,
-                          ShoppingCartSerializer, TagsSerializer)
+from .serializers import (FavoriteOrCartSerializer, FavoriteRecipeSerializer,
+                          IngredientsSerializer, RecipeCreateSerializer,
+                          RecipesSerializer, ShoppingCartSerializer,
+                          TagsSerializer)
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -43,7 +42,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     queryset = Recipes.objects.all()
     serializer_class = RecipesSerializer
-    pagination_class = RecipePaginator
+    pagination_class = CustomPaginator
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
     http_method_names = ['get', 'post', 'patch', 'delete']
@@ -75,7 +74,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         methods=['get'], detail=False,
     )
     def download_shopping_cart(self, request):
-        cart = IngredientsRecipes.objects.filter(
+        cart = ShoppingCart.objects.filter(
             recipes__cart__user=request.user
         ).values(
             'ingredient__name',
@@ -84,7 +83,15 @@ class RecipesViewSet(viewsets.ModelViewSet):
             Sum('amount')
         )
         response = HttpResponse(content_type="application/pdf")
-
+        response['Content-Disposition'] = 'attachment;'
+        cart = ''
+        for item in cart:
+            cart += (
+                item['ingredient__name'] + ' - '
+                + str(item['amount__sum']) + ' '
+                + item['ingredient__measurement_unit'] + '<br />'
+            )
+        return True
 
     @action(
         methods=['post', 'delete'], detail=True,
@@ -97,7 +104,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         methods=['post', 'delete'], detail=True,
     )
     def shopping_cart(self, request, pk):
-        func_model = IngredientsRecipes
+        func_model = ShoppingCart
         return custom_post_delete(self, request, pk, func_model)
 
 
@@ -125,5 +132,5 @@ def custom_post_delete(self, request, pk, func_model):
     favorite = self.get_serializer(data=data)
     favorite.is_valid(raise_exception=True)
     favorite.save()
-    serializer = FavoriteOrShoppingCartSerializer(recipe)
+    serializer = FavoriteOrCartSerializer(recipe)
     return Response(serializer.data, status=status.HTTP_201_CREATED)

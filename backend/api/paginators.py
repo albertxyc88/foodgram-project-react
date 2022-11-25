@@ -1,7 +1,7 @@
 from rest_framework.pagination import PageNumberPagination
 
 
-class RecipePaginator(PageNumberPagination):
+class CustomPaginator(PageNumberPagination):
     """Пагинатор для списка рецептов."""
 
     page_size = 10

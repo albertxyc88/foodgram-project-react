@@ -1,5 +1,8 @@
+from api.serializers import FavoriteOrCartSerializer
+from django.conf import settings
 from djoser.serializers import UserCreateSerializer as DjoserUserCreate
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from users.models import Follow, User
 
 
@@ -61,3 +64,60 @@ class UserCreateSerializer(DjoserUserCreate):
                 "Email is already registered."
             )
         return data
+
+
+class FollowCreateSerializer(serializers.ModelSerializer):
+    """Подписаться на пользователя."""
+
+    class Meta:
+        model = Follow
+        fields = '__all__'
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'following'),
+                message='Вы уже подписаны на этого пользователя.'
+            )
+        ]
+
+    def validate(self, data):
+        if data['user'] == data['following']:
+            raise serializers.ValidationError(
+                'Вы не можете подписаться на самого себя.')
+        return data
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    """Вывод подписок."""
+
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
+        )
+
+    def get_recipes(self, obj):
+        limit = self.context['request'].query_params.get(
+            'recipes_limit', settings.RECIPES_DEFAULT
+        )
+        recipes = obj.recipes.all()[:int(limit)]
+        return FavoriteOrCartSerializer(recipes, many=True).data
+
+    def get_is_subscribed(self, obj):
+        user = self.context['request'].user
+        return bool(obj.subscriber.filter(user=user))
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
