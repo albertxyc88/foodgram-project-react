@@ -1,5 +1,8 @@
 from django.db.models import Sum
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from recipe.models import (Favorite, Ingredients, IngredientsRecipes, Recipes,
+                           ShoppingCart, Tags)
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -7,8 +10,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import RecipesFilter
-from .models import (Favorite, Ingredients, IngredientsRecipes, Recipes,
-                     ShoppingCart, Tags)
 from .paginators import RecipePaginator
 from .permissions import IsAuthorOrAdminOnlyPermission
 from .serializers import (FavoriteOrShoppingCartSerializer,
@@ -82,6 +83,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
         ).annotate(
             Sum('amount')
         )
+        response = HttpResponse(content_type="application/pdf")
+
 
     @action(
         methods=['post', 'delete'], detail=True,

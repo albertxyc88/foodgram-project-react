@@ -30,6 +30,7 @@ class Tags(models.Model):
     def __str__(self):
         return self.name
 
+
 class Ingredients(models.Model):
     """Модель для ингредиентов."""
 
@@ -86,6 +87,10 @@ class Recipes(models.Model):
             MinValueValidator(settings.MIN_VALUE, 'Минимум должно быть 1!')
         ]
     )
+
+    class Meta:
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
 
 
 class TagsRecipes(models.Model):
