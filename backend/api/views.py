@@ -1,7 +1,7 @@
 from django.db.models import Sum
-from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from recipe.models import Favorite, Ingredients, Recipes, ShoppingCart, Tags
+from recipe.models import (Favorite, Ingredients, IngredientsRecipes, Recipes,
+                           ShoppingCart, Tags)
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -15,6 +15,7 @@ from .serializers import (FavoriteOrCartSerializer, FavoriteRecipeSerializer,
                           IngredientsSerializer, RecipeCreateSerializer,
                           RecipesSerializer, ShoppingCartSerializer,
                           TagsSerializer)
+from .utils import generate_pdf
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -74,24 +75,22 @@ class RecipesViewSet(viewsets.ModelViewSet):
         methods=['get'], detail=False,
     )
     def download_shopping_cart(self, request):
-        cart = ShoppingCart.objects.filter(
-            recipes__cart__user=request.user
+        cart = IngredientsRecipes.objects.filter(
+            recipe__cart__user=request.user
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(
             Sum('amount')
         )
-        response = HttpResponse(content_type="application/pdf")
-        response['Content-Disposition'] = 'attachment;'
-        cart = ''
+        cart_txt = []
         for item in cart:
-            cart += (
+            cart_txt.append(
                 item['ingredient__name'] + ' - '
                 + str(item['amount__sum']) + ' '
-                + item['ingredient__measurement_unit'] + '<br />'
+                + item['ingredient__measurement_unit']
             )
-        return True
+        return generate_pdf(cart_txt)
 
     @action(
         methods=['post', 'delete'], detail=True,

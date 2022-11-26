@@ -1,9 +1,10 @@
-from api.serializers import FavoriteOrCartSerializer
 from django.conf import settings
 from djoser.serializers import UserCreateSerializer as DjoserUserCreate
+from recipe.models import Recipes
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from users.models import Follow, User
+
+from .models import Follow, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -117,7 +118,25 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context['request'].user
-        return bool(obj.subscriber.filter(user=user))
+        return bool(obj.following.filter(user=user))
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
+
+class FavoriteOrCartSerializer(serializers.ModelSerializer):
+    """Отображение рецептов в избранном, списке покупок."""
+
+    class Meta:
+        model = Recipes
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
+        read_only_fields = (
+            'name',
+            'image',
+            'cooking_time'
+        )

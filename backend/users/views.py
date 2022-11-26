@@ -23,7 +23,7 @@ class UserCustomViewSet(UserViewSet):
         user = self.request.user
 
         def queryset():
-            return User.objects.filter(subscriber__user=user)
+            return User.objects.filter(following__user=user)
 
         self.get_queryset = queryset
         return self.list(request)
@@ -34,9 +34,9 @@ class UserCustomViewSet(UserViewSet):
     )
     def subscribe(self, request, id):
         user = self.request.user
-        author = self.get_object()
+        following = self.get_object()
         if request.method == 'DELETE':
-            instance = user.following.filter(author=author)
+            instance = user.follower.filter(following=following)
             if not instance:
                 raise serializers.ValidationError(
                     {
@@ -49,10 +49,10 @@ class UserCustomViewSet(UserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         data = {
             'user': user.id,
-            'author': id
+            'following': id
         }
         subscription = FollowCreateSerializer(data=data)
         subscription.is_valid(raise_exception=True)
         subscription.save()
-        serializer = self.get_serializer(author)
+        serializer = self.get_serializer(following)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
