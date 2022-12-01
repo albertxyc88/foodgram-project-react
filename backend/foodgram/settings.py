@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'recipe.apps.RecipeConfig',
     'rest_framework',
     'corsheaders',
+    'django_filters',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -160,6 +161,7 @@ REST_FRAMEWORK = {
     ),
 
     'PAGE_SIZE': 5,
+    'SEARCH_PARAM': 'name',
 
 }
 
