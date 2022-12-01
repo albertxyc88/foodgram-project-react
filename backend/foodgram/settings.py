@@ -48,8 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
     'djoser',
-
-
 ]
 
 MIDDLEWARE = [
@@ -89,8 +87,15 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.sqlite3'),
+        'NAME': os.getenv(
+            'DB_NAME',
+            default=os.path.join(BASE_DIR, 'db.sqlite3')
+        ),
+        'USER': os.getenv('POSTGRES_USER', default='USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='PASSWORD'),
+        'HOST': os.getenv('DB_HOST', default='HOST'),
+        'PORT': os.getenv('DB_PORT', default='PORT')
     }
 }
 
