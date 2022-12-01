@@ -31,7 +31,8 @@ class Command(BaseCommand):
             print('Загрузка данных в ingredients.')
             data = json.load(ingredients_file)
             for element in data:
-                Ingredients.objects.create(name=element['name'],
-                    measurement_unit = element['measurement_unit']
+                Ingredients.objects.create(
+                    name=element['name'],
+                    measurement_unit=element['measurement_unit']
                 )
             print('Загрузка данных в ingredients завершена.')
