@@ -7,10 +7,10 @@ class RecipesFilter(filters.FilterSet):
     """Фильтр  для рецептов."""
 
     is_favorited = filters.NumberFilter(
-        field_name='favorite__user', method='favorite_filter'
+        field_name='favorite__user', method='filter_lists'
     )
     is_in_shopping_cart = filters.NumberFilter(
-        field_name='cart__user', method='cart_filter'
+        field_name='cart__user', method='filter_lists'
     )
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
@@ -24,12 +24,8 @@ class RecipesFilter(filters.FilterSet):
             'author',
         )
 
-    def cart_filter(self, queryset, name, value):
-        if value:
-            return queryset.filter(favorite__user=self.request.user)
-        return queryset
-
-    def favorite_filter(self, queryset, name, value):
-        if value:
-            return queryset.filter(cart__user=self.request.user)
-        return queryset
+    def filter_lists(self, queryset, name, value):
+        user = self.request.user
+        if user.is_anonymous or not int(value):
+            return queryset
+        return queryset.filter(**{name: user})
