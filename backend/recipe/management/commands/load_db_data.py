@@ -8,7 +8,7 @@ from recipe.models import Ingredients
 ingredients_file = open(
     os.path.join(
         settings.BASE_DIR,
-        '../ingredients.json',
+        'ingredients.json',
     ),
     encoding='utf-8'
 )
