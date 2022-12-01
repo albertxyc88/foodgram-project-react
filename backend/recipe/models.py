@@ -1,6 +1,8 @@
 from django.conf import settings
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import (MaxLengthValidator, MinValueValidator,
+                                    RegexValidator)
 from django.db import models
+
 from users.models import User
 
 
@@ -57,7 +59,8 @@ class Recipes(models.Model):
     tags = models.ManyToManyField(
         'Tags',
         through='TagsRecipes',
-        verbose_name='Тег'
+        verbose_name='Тег',
+        db_index=True
     )
     author = models.ForeignKey(
         User,
@@ -79,7 +82,8 @@ class Recipes(models.Model):
         verbose_name='Картинка'
     )
     text = models.TextField(
-        verbose_name='Описание'
+        verbose_name='Описание',
+        validators=[MaxLengthValidator(settings.MAX_TEXT_VALUE)]
     )
     cooking_time = models.PositiveIntegerField(
         default=settings.MIN_VALUE,

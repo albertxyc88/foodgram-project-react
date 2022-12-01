@@ -1,9 +1,10 @@
-from api.paginators import CustomPaginator
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
 from rest_framework import serializers, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from api.paginators import CustomPaginator
 
 from .serializers import FollowCreateSerializer, FollowSerializer
 

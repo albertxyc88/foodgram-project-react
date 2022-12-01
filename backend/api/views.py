@@ -1,12 +1,13 @@
 from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
-from recipe.models import (Favorite, Ingredients, IngredientsRecipes, Recipes,
-                           ShoppingCart, Tags)
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+
+from recipe.models import (Favorite, Ingredients, IngredientsRecipes, Recipes,
+                           ShoppingCart, Tags)
 
 from .filters import RecipesFilter
 from .paginators import CustomPaginator
