@@ -87,9 +87,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
         cart_txt = []
         for item in cart:
             cart_txt.append(
-                item['ingredient__name'] + ' - '
-                + str(item['amount__sum']) + ' '
-                + item['ingredient__measurement_unit']
+                item['ingredient__name'] + ' - ' +
+                str(item['amount__sum']) + ' ' +
+                item['ingredient__measurement_unit']
             )
         return generate_pdf(cart_txt)
 
