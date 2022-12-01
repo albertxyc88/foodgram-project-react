@@ -4,7 +4,10 @@ from django.conf import settings
 from django.http import FileResponse
 from fpdf import FPDF
 
-font = os.path.join(settings.STATIC_ROOT, 'fonts/arial.ttf')
+font = os.path.join(
+        settings.BASE_DIR,
+        'arial.ttf',
+    )
 
 
 def generate_pdf(cart):
